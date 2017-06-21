@@ -1,0 +1,16 @@
+event distribution (x: date, y: amount, try by day first, if not ideal, by month) plot as histgram
+
+win_prob: (bigger than 0) df and mean both (plot as time series)
+
+README
+
+numpy: cumsum [1, 2, 3] -> [1, 2, 5]
+	cumprod [1, 2, 3] -> [1, 2, 6]
+	net_value
+
+df.rolling(window=5)    (mean, std ... )
+
+
+construct event_df, take care of missing date(which is not trading day, but has announcement)
+
+get last tading day(ricequant function)
