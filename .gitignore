@@ -20,6 +20,7 @@ test/
 temp/
 file/
 rqalpha/
+test_file/
 
 # Packages #
 ############
@@ -52,3 +53,4 @@ Thumbs.db
 
 # Specific files #
 ######################
+note.txt

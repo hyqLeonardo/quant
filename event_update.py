@@ -1,6 +1,8 @@
 from util_quant import *
 from signal_quant import *
 
+HEAD_EXPAND_NUM = 20
+TAIL_EXPAND_NUM = 20
 ## Event class
 class Event:
     """Back test performance based on rate of return chosen by a specific event
@@ -40,8 +42,8 @@ class Event:
         # self.events.df.columns contains stock codes
         stock_list = list(self.event_df.columns)
         # self.events.df.index contains dates we need
-        s_date = self.event_df.index[0] - 20*BDay()
-        e_date = self.event_df.index[-1] + 20*BDay()
+        s_date = self.event_df.index[0] - HEAD_EXPAND_NUM*BDay()
+        e_date = self.event_df.index[-1] + TAIL_EXPAND_NUM*BDay()
         
         self.price_df = get_price(stock_list,
                                   start_date=s_date,
@@ -116,7 +118,7 @@ class Event:
         
         ## Plot    
         # plot average absolute performance
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(10, 6))
         absolute_performance_mean = self.absolute_performance.mean()
         graph = absolute_performance_mean.plot(kind='line')
         graph.set_title('Average Absolute Performance', fontsize=16)
@@ -135,7 +137,7 @@ class Event:
         plt.show()
         
         # plot win rate
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(10, 6))
         win_rate = self.absolute_performance.copy( )
         # mark value bigger than 0 as 1, others 0
         win_rate[win_rate > 0] = 1
@@ -161,8 +163,8 @@ class Event:
         """
         print("Calculating relative performance")
         # collect benchmark index prices
-        s_date = self.event_df.index[0]
-        e_date = self.event_df.index[-1]
+        s_date = self.event_df.index[0] - HEAD_EXPAND_NUM*BDay()
+        e_date = self.event_df.index[-1] + TAIL_EXPAND_NUM*BDay()
         fld = 'close'
         adj = 'post'
         frq= '1d'
@@ -243,7 +245,7 @@ class Event:
         
         ## Plot
         # plot average relative performance
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(10, 6))
         relative_performance_mean = self.relative_performance.mean()
         graph = relative_performance_mean.plot(kind='line')
         graph.set_title('Average Relative Performance', fontsize=16)
@@ -262,7 +264,7 @@ class Event:
         plt.show()
         
         # plot win rate
-        plt.figure(figsize=(10, 8))
+        plt.figure(figsize=(10, 6))
         win_rate = self.relative_performance.copy( )
         # mark value bigger than 0 as 1, others 0
         win_rate[win_rate > 0] = 1
@@ -270,7 +272,8 @@ class Event:
         # winning count divide by total number of events with respect to specific days
         day_count = win_rate.shape[0]
         win_rate = win_rate.sum(axis=0) / day_count
-        graph2 = win_rate.plot(title='Win Rate', kind='line', fontsize=16)
+        graph2 = win_rate.plot(kind='line')
+        graph2.set_title('Win Rate', fontsize=16)
         graph2.set_xlabel('Day', fontsize=16)
         # force x axe show integer tick
         plt.xticks(relative_performance_mean.index)
@@ -281,16 +284,18 @@ class Event:
         # plot event distribution by month or by day, depend on parameter 'month'
         print('Plotting event distribution...')
         if month:   # count by month   
-            # group index by month, then sum over month
-            event_df_month = self.event_df.resample('M').sum
+            # group index by month, then sum over month, need to convert index to datetime first!
+            event_df_month = self.event_df.copy()
+            event_df_month.index = pd.to_datetime(event_df_month.index)
+            event_df_month = event_df_month.resample('M').sum()
             # sum over column
-            events_count_month = event_df_month.sum(axis=1)
+            event_count_month = event_df_month.sum(axis=1)
             # modify index, keep only year and month
             index_new = pd.Series(event_count_month.index)
             index_new = index_new.apply(date2ym_str)
             event_count_month.index = index_new
             # plot
-            plt.figure(figsize=(10, 8))
+            plt.figure(figsize=(10, 6))
             graph = event_count_month.plot(kind='bar')
             graph.set_title('Event Distribution', fontsize=16)
             graph.set_xlabel('Month', fontsize=16)
@@ -299,14 +304,12 @@ class Event:
 
         else:   # count by day
             # sum over column
-            events_count_day = self.event_df.sum(axis=1)
+            event_count_day = self.event_df.sum(axis=1)
             # plot
-            plt.figure(figsize=(10, 8))
-            graph = events_count_day.plot(kind='bar')
+            plt.figure(figsize=(10, 6))
+            graph = event_count_day.plot(kind='bar')
             graph.set_title('Event Distribution', fontsize=16)
             graph.set_xlabel('Date', fontsize=16)
             graph.set_ylabel('Event count', fontsize=16)
             plt.show()
-
-
 
