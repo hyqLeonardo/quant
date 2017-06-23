@@ -41,7 +41,7 @@ def announce2event(file_name):
 	end_date = date2ymd_str(df.index[0])
 	# get all valid trading dates
 	trading_dates = get_trading_dates(start_date, end_date)
-	# event df
+	# event df, no need to construct index and columns name, it's constructed on the fly
 	event_df = pd.DataFrame()
 
 	# loop over rows of df
@@ -55,7 +55,9 @@ def announce2event(file_name):
 			except:
 				print('Set event error at :{}, code :{}'.format(date, code))
 
-	print(event_df)
+	# NOTICE: Remember to reverse the order of row
+	event_df = event_df.iloc[::-1]
+	# print(event_df)
 	return event_df
 
 if __name__ = '__main__':
