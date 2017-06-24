@@ -27,11 +27,9 @@ def json_to_df(resp_json, column, csv_file):
 
 		try:
 			info_list.append(str(item['secCode']).encode('utf-8'))	# code
-			info_list.append(item['announcementTitle'].encode('utf-8'))	# title
 		except:
-			print('the stock that can not be append to info_list has code: '.format(item['secCode']))
-			print('the stock that can not be append to info_list has title: '.format(item['announcementTitle']))
-			continue
+			print(item['secCode'])
+		info_list.append(item['announcementTitle'].encode('utf-8'))	# title
 
 		# save downloadable url for announcement document
 		doc_type = item['adjunctType']
@@ -80,10 +78,6 @@ def cninfo_http_post(start_date):
 		jdata = urllib.urlencode(values)
 		# time.sleep(0.1)
 		request = urllib2.Request(url, jdata, values)
-<<<<<<< HEAD
-=======
-
->>>>>>> fb53e32b85dd499b1d477fba7b9f24cbdc17d44e
 
 		while True:
 			try:
@@ -93,10 +87,6 @@ def cninfo_http_post(start_date):
 				continue
 			break
 
-<<<<<<< HEAD
-=======
-
->>>>>>> fb53e32b85dd499b1d477fba7b9f24cbdc17d44e
 		resp = response.read()
 		has_more = re.findall(r'.*?\"hasMore\":tru(.*?)}', resp)
 		response_list.append(resp)
@@ -113,8 +103,8 @@ def cninfo_to_df(days, start_date, column):
 	csv_file = 'all.csv'
 	# # create a csv file to save all announcements
 	# with open(csv_file, 'wb') as csv_w:
-	#	wr = csv.writer(csv_w, quoting=csv.QUOTE_ALL)
-	#	wr.writerow(['股票代码', '公告标题', '公告链接', '日期'])
+	# 	wr = csv.writer(csv_w, quoting=csv.QUOTE_ALL)
+	# 	wr.writerow(['股票代码', '公告标题', '公告链接', '日期'])
 
 	date_time = time.mktime(time.strptime(start_date, '%Y-%m-%d'))
 	while days > 0:
