@@ -18,6 +18,14 @@ def json_to_df(resp_json, column, csv_file):
 	for item in resp_json['announcements']:
 		info_list = list()
 		try:
+			info_list.append(str(item['secCode']).encode('utf-8'))  # code
+			info_list.append(item['announcementTitle'].encode('utf-8'))     # title
+		except:
+			print('the stock that can not be append to info_list has code: '.format(item['secCode']))
+			print('the stock that can not be append to info_list has title: '.format(item['announcementTitle']))
+			continue
+
+		try:
 			info_list.append(str(item['secCode']).encode('utf-8'))	# code
 			info_list.append(item['announcementTitle'].encode('utf-8'))	# title
 		except:
@@ -72,6 +80,11 @@ def cninfo_http_post(start_date):
 		jdata = urllib.urlencode(values)
 		# time.sleep(0.1)
 		request = urllib2.Request(url, jdata, values)
+<<<<<<< HEAD
+=======
+
+>>>>>>> fb53e32b85dd499b1d477fba7b9f24cbdc17d44e
+
 		while True:
 			try:
 				response = urllib2.urlopen(request)
@@ -79,6 +92,11 @@ def cninfo_http_post(start_date):
 				time.sleep(1)
 				continue
 			break
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> fb53e32b85dd499b1d477fba7b9f24cbdc17d44e
 		resp = response.read()
 		has_more = re.findall(r'.*?\"hasMore\":tru(.*?)}', resp)
 		response_list.append(resp)
