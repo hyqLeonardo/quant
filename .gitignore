@@ -23,6 +23,8 @@ temp/
 file/
 rqalpha/
 test_file/
+docs/
+.ipynb_checkpoints/
 
 # Packages #
 ############
