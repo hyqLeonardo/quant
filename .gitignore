@@ -14,6 +14,7 @@
 *.pyc
 *.whl
 *.csv
+*.bak
 
 # Directories #
 ###################
