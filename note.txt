@@ -39,3 +39,12 @@ get_next_trading_date()
 
 3.要不要把absolute_performance和relative_performance的结果存在类的变量里，这样方便选择画不画图，代码也更清晰。
 现在的图还是有待改进，我准备换用 plotly 这个库。
+
+
+2017/6/23
+
+To do list:
+
+1.add histogram at y-axis in absolute and relative performance, on top of rate of return time line
+2.try techical analysis
+3.
