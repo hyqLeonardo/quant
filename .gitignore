@@ -25,7 +25,8 @@ rqalpha/
 test_file/
 docs/
 .ipynb_checkpoints/
-
+__pycache__
+_
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
