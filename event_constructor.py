@@ -1,21 +1,23 @@
 # -*- coding:utf-8 -*-
 from util_quant import *
 
-def filter_title(title):
-    # word must be in title
-    contain = False
-    if '增持' in title:
-        contain = True
-        if '完成' in title:    # if contain both words, must be right
+target_words = ['减持']
+filter_words = ['不减持', '不存在减持', '终止', '限制', '购回', '回购', 
+                        '完成', '更正', '更新', '完毕', '用于', '进展']
+
+def filter_title(title, target_words, filter_words):
+    
+    # at least one word in target_words should be in title
+    for w_positive in target_words:
+        if w_positive in title:
+            # words that should not be in title
+            for w_negative in filter_words:
+                if w_negative in title:
+                    return False
+                
             return True
-
-    # words that should not be in title
-    exclude_list = ['误操作', '倡议书', '进展', '核查意见', '补充', '计划' ]
-    for w in exclude_list:
-        if w in title:
-            return False
-
-    return contain
+        
+    return False
 
 def announce2event(file_name, backtest_start_date=None, verbose=False):
     '''
@@ -73,7 +75,7 @@ def announce2event(file_name, backtest_start_date=None, verbose=False):
     for date, row in df.iterrows():
         code = complete_code(str(row['Code']))
         # code has meaning and title pass the filter
-        if date and code and filter_title(row['Title']):
+        if date and code and filter_title(row['Title'], target_words, filter_words):
 #             try:
                 # keep only year-month-day, convert to datetime, index is list of trading dates 
                 event_df.loc[adjust_to_trading_date(date, trading_dates), code] = 1

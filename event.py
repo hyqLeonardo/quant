@@ -1,5 +1,5 @@
 from util_quant import *
-from event_constructor import *
+# from event_constructor import *
 
 HEAD_EXPAND_NUM = 60
 TAIL_EXPAND_NUM = 60
@@ -123,12 +123,8 @@ class Event:
         
         # plot win rate
         win_rate = self.absolute_performance.copy( )
-        # mark value bigger than 0 as 1, others 0
-        win_rate[win_rate > 0] = 1
-        win_rate[win_rate <= 0] = 0
         # winning count divide by total number of events with respect to specific days
-        day_count = win_rate.shape[0]
-        win_rate = win_rate.sum(axis=0) / day_count
+        win_rate = win_rate[win_rate > 0].count(axis=0) / win_rate.count(axis=0)
         
         plot_area(win_rate, title_str='Win Rate (Absolute)')
         
@@ -227,12 +223,8 @@ class Event:
         
         # plot win rate
         win_rate = self.relative_performance.copy( )
-        # mark value bigger than 0 as 1, others 0
-        win_rate[win_rate > 0] = 1
-        win_rate[win_rate <= 0] = 0
         # winning count divide by total number of events with respect to specific days
-        day_count = win_rate.shape[0]
-        win_rate = win_rate.sum(axis=0) / day_count
+        win_rate = win_rate[win_rate > 0].count(axis=0) / win_rate.count(axis=0)
         
         plot_area(win_rate, title_str='Win Rate (Relative)')
     
@@ -258,3 +250,96 @@ class Event:
             event_count_day = self.event_df.sum(axis=1)
             # plot
             plot_bar(event_count_day, title_str='Event Distribution By Day')
+
+            
+def filter_title(title, target_words, filter_words, filter_mode):
+    '''
+        @param title is string of announcement's title
+        @param target_words
+        @param filter_words
+        @param filter_mode can take 'AND' or 'OR'
+    '''
+    
+    if filter_mode == 'OR': # at least one word in target_words should be in title
+        
+        for w_positive in target_words: # words should be in title
+            if w_positive in title:
+                # words that should not be in title
+                for w_negative in filter_words:
+                    if w_negative in title:
+                        return False
+
+                return True
+
+        return False
+    
+    elif filter_mode == 'AND': # all words in target_words must be in title
+        
+        # words should be in title
+        for w_positive in target_words:
+            if w_positive not in title:
+                return False
+            
+        # words that should not be in title
+        for w_negative in filter_words:
+            if w_negative in title:
+                return False
+        
+        return True
+        
+
+def announce2event(df, backtest_start_date, target_words, filter_words, filter_mode, verbose=False):
+    '''
+        @param df is the dataframe constructed from annoucements csv file
+        @param backtest_start_date is the start date of backtest
+        @param target_words is a list of words required in annoucement title
+        @param filter_words is a list of words can not be in title
+        @param filter_mode can set to AND or OR, affect the filter logic of target words list
+    '''
+    
+    #################################### check ###################################
+    if verbose:
+        print(df[-20:])
+        print(type(df.index[0]))
+        print(df.index[0])
+        #print(df.index[0] > date2datetime(datetime.date(2017, 6, 12)))
+        print(df.columns)
+        # check index type
+        for i in df.index:
+            if i == '':
+                print("There are null in df index!!!")
+            elif not isinstance(i, type(datetime.datetime(2017,1,1))):
+                print("There are {} type in df.index!!!".format(type(i)))
+            else:
+                pass
+    #################################### check ###################################
+    
+    try:
+        # slice rows with date after backtest start date
+        df = df[df.index > date2datetime(backtest_start_date)-BDay()]
+    except:
+        print('Something wrong when slice date of event df')
+
+    # get date range
+    start_date = date2ymd_str(df.index[-1])
+    end_date = date2ymd_str(df.index[0])
+    # get all valid trading dates
+    trading_dates = get_trading_dates(start_date, end_date)
+    # event df, no need to construct index and columns name, it's constructed on the fly
+    event_df = pd.DataFrame(index=trading_dates)
+
+    # loop over rows of df
+    for date, row in df.iterrows():
+        code = complete_code(str(row['Code']))
+        # code has meaning and title pass the filter
+        if date and code and filter_title(row['Title'], target_words, filter_words, filter_mode):
+            # keep only year-month-day, convert to datetime, index is list of trading dates 
+            event_df.loc[adjust_to_trading_date(date, trading_dates), code] = 1
+
+    
+    # NOTICE: Remember to reverse the order of row because date index in 
+    # csv file is in descending order, while date index in event_df should be
+    # in ascending order.
+    # event_df = event_df.iloc[::-1]
+
+    return event_df

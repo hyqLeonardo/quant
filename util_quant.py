@@ -4,6 +4,8 @@ import random
 import rqdatac
 from rqdatac import *
 
+import talib
+
 import datetime
 import pandas as pd
 import numpy as np
@@ -66,13 +68,26 @@ def complete_code(code):
 
     if len(code) < 6: # code is empty or length smaller than 6
         return False
-    elif code[:3] in ['600', '601']: # 上证
+    # careful, code is string type
+    elif code[0] == '6': # 上证
         return code + '.XSHG'
-    elif code[:3] == '000': # 深证
+    elif code[0] in ['0', '3']: # 深证
         return code + '.XSHE'
-    else: # neither
+    else:
         return False
 
+## IO functions
+def read_announce_csv(file_name):
+    # read csv file into dataframe
+    df = pd.read_csv(file_name, dtype=str,
+                    parse_dates=True,
+                    index_col='Date',
+                    usecols=['Code', 'Title', 'Link', 'Date'],
+                    na_values=['nan'])
+    return df
+
+    
+## Plot functions
 # plot a time series and a band deviate by std_num of std
 def plot_band(time_series, title_str, yaxis_str, std_num=1):
     # # sign in

@@ -15,6 +15,7 @@
 *.whl
 *.csv
 *.bak
+*.ipynb
 
 # Directories #
 ###################
